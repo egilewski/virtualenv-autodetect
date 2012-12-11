@@ -11,7 +11,8 @@ _VIRTUALENV_ACTIVATION_SCRIPT_PATH="bin/activate"
 
 _virtualenv_auto_activate() {
     _virtualenv_path=$(_get_virtualenv_path)
-    if [ -e "$_virtualenv_path" ]; then
+    if [ -e "$_virtualenv_path" ]
+    then
         # Check if already activated to avoid redundant activation.
         if [ "$VIRTUAL_ENV" != $(readlink -f "$_virtualenv_path") ]
         then
@@ -65,6 +66,9 @@ _bash_chpwd_function() {
         $1
     fi
 }
+
+# Before activation remove VIRTUAL_ENV from inherited env.
+unset VIRTUAL_ENV
 
 # Activate on shell start.
 _virtualenv_auto_activate
