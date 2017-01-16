@@ -27,7 +27,12 @@ _virtualenv_auto_activate() {
 _get_virtualenv_path() {
     # Find subdir of given one that is a virtualenv dir.
     _find_virtualenv_subdir() {
-        find $1 -maxdepth 2 -type d -name 'bin' -exec find {} -name 'activate' \; 2> /dev/null
+        result=$(find $1 -maxdepth 2 -type d -name 'bin' -exec find {} -name 'activate' \; 2> /dev/null)
+        if [ -n "$result" ]; then
+            if [ -n "$(head -1 $result | grep "source bin/activate" 2> /dev/null)" ]; then
+                echo $result
+            fi
+        fi
     }
 
     _current_dir="$PWD"
@@ -49,7 +54,7 @@ _get_virtualenv_path() {
     done
 }
 
-# Execute given function if derectory changed.
+# Execute given function if directory changed.
 # Unlike in Zsh's "chpwd_functions" won't work with "cd .".
 _bash_chpwd_function() {
     if [ "$PWD" != "$_myoldpwd" ]
