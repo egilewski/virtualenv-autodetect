@@ -13,25 +13,28 @@ _virtualenv_auto_activate() {
     if [ -e "$_virtualenv_path" ]
     then
         # Check if already activated to avoid redundant activation.
-        if [ "$VIRTUAL_ENV" != "${_virtualenv_path#/bin/activate}" ]
+        if [ "$VIRTUAL_ENV" != "${_virtualenv_path%/bin/activate}" ]
         then
+            _remove_from_pythonpath     # Remove any previous VE path
             VIRTUAL_ENV_DISABLE_PROMPT=1
             source "$_virtualenv_path"
             _add_to_pythonpath "$VIRTUAL_ENV"
         fi
     else
-        deactivate 2>/dev/null
         _remove_from_pythonpath
+        deactivate 2>/dev/null
     fi
 }
 
 _add_to_pythonpath() {
     sp=$(find $1 -type d -name 'site-packages')
-    export PYTHONPATH=$PYTHONPATH${PYTHONPATH:+:}$sp
+    export PYTHONPATH=$(echo $PYTHONPATH${PYTHONPATH:+:}$sp | tr : "\n" | sort -u | tr "\n" : | sed -e 's/:$//')
 }
 
 _remove_from_pythonpath() {
-    export PYTHONPATH=$(echo $PYTHONPATH | perl -pe 's%(^|:)(/?[a-zA-Z0-9_\-\.]*/)*site-packages($|:)%%')
+    if [ -n "$VIRTUAL_ENV" ]; then
+        export PYTHONPATH=$(echo $PYTHONPATH | tr : "\n" | grep -v "$VIRTUAL_ENV" | tr "\n" : | sed -e 's/:$//')
+    fi
 }
 
 # Get absolute path to virtualenv dir in current dir or one of it's parents.
