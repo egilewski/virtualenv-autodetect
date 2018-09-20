@@ -86,6 +86,6 @@ _virtualenv_auto_activate
 
 # Activate on directory change.
 # Zsh.
-chpwd_functions=(_virtualenv_auto_activate)
+chpwd_functions+=(_virtualenv_auto_activate)
 # Bash.
 export PROMPT_COMMAND="_bash_chpwd_function _virtualenv_auto_activate"
