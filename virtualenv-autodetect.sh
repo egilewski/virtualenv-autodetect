@@ -16,7 +16,6 @@ _virtualenv_auto_activate() {
         if [ "$VIRTUAL_ENV" != "${_virtualenv_path%/bin/activate}" ]
         then
             _remove_from_pythonpath     # Remove any previous VE path
-            VIRTUAL_ENV_DISABLE_PROMPT=1
             source "$_virtualenv_path"
             _add_to_pythonpath "$VIRTUAL_ENV"
         fi
