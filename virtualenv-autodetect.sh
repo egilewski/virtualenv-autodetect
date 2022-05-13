@@ -40,7 +40,7 @@ _remove_from_pythonpath() {
 _get_virtualenv_path() {
     # Find subdir of given one that is a virtualenv dir.
     _find_virtualenv_subdir() {
-        result=$(find $1 -maxdepth 2 -type d -name 'bin' -exec find {} -name 'activate' \; 2> /dev/null)
+        result=$(find $1 -maxdepth 2 -type d -name 'bin' -exec find {} -maxdepth 1 -name 'activate' \; 2> /dev/null)
         if [ -n "$result" ]; then
             if [ -n "$(head -1 $result | grep "source bin/activate" 2> /dev/null)" ]; then
                 echo $result
