@@ -9,20 +9,26 @@
 
 
 _virtualenv_auto_activate() {
-    _virtualenv_path=$(_get_virtualenv_path)
-    if [ -e "$_virtualenv_path" ]
-    then
-        # Check if already activated to avoid redundant activation.
-        if [ "$VIRTUAL_ENV" != "${_virtualenv_path%/bin/activate}" ]
-        then
-            _remove_from_pythonpath     # Remove any previous VE path
-            source "$_virtualenv_path"
-            _add_to_pythonpath "$VIRTUAL_ENV"
+    [ -n "$DEBUG_AUTO_VENV" ] && set -x
+    if [ -n "$VIRTUAL_ENV" ]; then
+        if ! pwd | grep $(dirname $VIRTUAL_ENV) > /dev/null; then
+            _remove_from_pythonpath "$VIRTUAL_ENV"
+            deactivate 2>/dev/null
         fi
     else
-        _remove_from_pythonpath
-        deactivate 2>/dev/null
+        _virtualenv_path=$(_get_virtualenv_path)
+        if [ -e "$_virtualenv_path" ]; then
+            OLD_VENV="$VIRTUAL_ENV"
+            source "$_virtualenv_path"
+            if [[ "$VIRTUAL_ENV" == "${_virtualenv_path%/bin/activate}" ]]; then
+                _remove_from_pythonpath "$OLD_VENV"        # Remove any previous VE path
+                _add_to_pythonpath "$VIRTUAL_ENV"
+            else
+                deactivate 2> /dev/null
+            fi
+        fi
     fi
+    [ -n "$DEBUG_AUTO_VENV" ] && set +x
 }
 
 _add_to_pythonpath() {
@@ -31,8 +37,8 @@ _add_to_pythonpath() {
 }
 
 _remove_from_pythonpath() {
-    if [ -n "$VIRTUAL_ENV" ]; then
-        export PYTHONPATH=$(echo $PYTHONPATH | tr : "\n" | grep -v "$VIRTUAL_ENV" | tr "\n" : | sed -e 's/:$//')
+    if [ -n "$1" ]; then
+        export PYTHONPATH=$(echo $PYTHONPATH | tr : "\n" | grep -v "$1" | tr "\n" : | sed -e 's/:$//')
     fi
 }
 
